@@ -49,20 +49,23 @@ INSTALLED_APPS = [
     'goods.apps.GoodsConfig',
     'trade.apps.TradeConfig',
     'user_operation.apps.UserOperationConfig',
-    # 'users',
-    # 'goods',
-    # 'trade',
-    # 'user_operation',
     'xadmin',
     'crispy_forms',
-    'DjangoUeditor'
+    'django-filter',
+    'DjangoUeditor',
+    'rest_framework',
+# 因为token认证的方式 ,会在数据库中生成一个token表,存储token值,并与user关联,需要把'rest_framework.authtoken',写入app中
+    'rest_framework.authtoken',
 ]
+# 'django.contrib.sessions.middleware.SessionMiddleware',
+# 'django.contrib.auth.middleware.AuthenticationMiddleware',
+# 每当一个request进来的时候，这两个meddleware就会将我们的cookie里的session_id转换成request.user
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
-    'django.middleware.csrf.CsrfViewMiddleware',
+    # 'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
@@ -142,4 +145,57 @@ STATIC_URL = '/static/'
 # 设置上传文件，图片访问路径
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
+
+# 配置用户登录方法
+# 设置邮箱和用户名和手机号均可登录
+AUTHENTICATION_BACKENDS = (
+    'users.views.CustomBackend',
+
+)
+
+
+# 所有与drf相关的设置写在这里面
+# drf为我们提供了三种不同的auth
+# sessionauth在浏览器中比较常见，它会自动设置cookie，并将session等带到我们的服务器。
+# tokenauth会为我们建一张表的，凡是会有表产生的。都必须放到install app中
+
+# 一个用户在创建的时候就应该拥有一个token，但是现在我们还并没有拥有token。
+
+REST_FRAMEWORK = {
+# api guide 中的auth
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework.authentication.BasicAuthentication',
+        'rest_framework.authentication.SessionAuthentication',
+        'rest_framework_jwt.authentication.JSONWebTokenAuthentication',
+        # 我们在setting中配置了一个全局的token auth认证类。这个auth类会对token进行验证
+        # 如果验证失败会抛出上面源码中的两种异常
+        # 如果不配置全局的，配置某个具体的viewset，则需要删除auth token配置
+        # 'rest_framework.authentication.TokenAuthentication',
+    ),
+    'DEFAULT_THROTTLE_CLASSES': (
+        'rest_framework.throttling.AnonRateThrottle',
+        'rest_framework.throttling.UserRateThrottle'
+    ),
+    'DEFAULT_THROTTLE_RATES': {
+        'anon': '100/day',
+        'user': '1000/day'
+    },
+    # 配置缓存
+    'DEFAULT_OBJECT_CACHE_KEY_FUNC':{
+        'DEFAULT_OBJECT_CACHE_KEY_FUNC':'rest_framework_extensions.utils.default_object_cache_key_func',
+        'DEFAULT_LIST_CACHE_KEY_FUNC':'rest_framework_extensions.utils.default_list_cache_key_func',
+    },
+
+}
+
+import datetime
+# 与drf的jwt相关的设置
+JWT_AUTH = {
+    'JWT_EXPIRATION_DELTA': datetime.timedelta(seconds=3600),
+    'JWT_AUTH_HEADER_PREFIX': 'Bearer',
+}
+
+# 手机号码正则表达式
+REGEX_MOBILE = "^1[358]\d{9}$|^147\d{8}$|^176\d{8}$"
 
