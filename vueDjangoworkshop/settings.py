@@ -167,7 +167,7 @@ REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework.authentication.BasicAuthentication',
         'rest_framework.authentication.SessionAuthentication',
-        'rest_framework_jwt.authentication.JSONWebTokenAuthentication',
+        # 'rest_framework_jwt.authentication.JSONWebTokenAuthentication',
         # 我们在setting中配置了一个全局的token auth认证类。这个auth类会对token进行验证
         # 如果验证失败会抛出上面源码中的两种异常
         # 如果不配置全局的，配置某个具体的viewset，则需要删除auth token配置

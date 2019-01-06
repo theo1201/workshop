@@ -3,7 +3,7 @@ from  django.db.models import Q
 # Create your views here.
 from django.contrib.auth.backends import ModelBackend
 from django.contrib.auth import get_user_model
-from rest_framework import viewsets,mixins
+from rest_framework import viewsets,mixins,permissions,authentication
 from rest_framework_jwt.authentication import JSONWebTokenAuthentication
 from rest_framework.authentication import SessionAuthentication
 # 发送验证码是创建model中一条记录的操作
@@ -84,7 +84,14 @@ class UserViewset(CreateModelMixin, mixins.UpdateModelMixin, mixins.RetrieveMode
 
     # 动态Serializer配置
     def get_serializer_class(self):
+        # 注册的时候如果使用userdetailserializer会导致没有的字段验证失败
         if self.action == 'create':
             return UserRegSerializer
-
         return UserDetailSerializer
+
+    # 用户注册的时候没有权限，用户在get时有权限验证。
+    def get_permissions(self):
+        if self.action =="retrieve":
+            return [permissions.IsAuthenticated()]
+        else:
+            return []

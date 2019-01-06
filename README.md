@@ -30,3 +30,7 @@ Signature 签名  前面两部分都是使用 Base64 进行编码的，即前端
 
 1/
 我们的jwt 调用的是django自带的auth与userProfile中数据进行对比。而我们如果使用手机注册，就会导致验证失败。因为默认是用用户名和密码去查的
+
+
+serializer操作
+serializers.SerializerMethodField()

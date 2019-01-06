@@ -6,6 +6,16 @@ from django.db.models import  Q
 
 # F()允许Django在未实际链接数据的情况下具有对数据库字段的值的引用。
 # 通常情况下我们在更新数据时需要先从数据库里将原数据取出后方在内存里，然后编辑某些属性，最后提交。
+# meta中其他关系字段
+#
+# fields = "__all__"
+# # fields = ["id", "title", "pub_time"]
+# # exclude = ["user"]
+# # 分别是所有字段 包含某些字段 排除某些字段
+# depth = 1
+# read_only_fields = ["id"]
+# extra_kwargs = {"title": {"validators": [my_validate,]}}
+
 
 class CategorySerializer(serializers.ModelSerializer):
     class Meta:
@@ -71,8 +81,10 @@ class IndexCategorySerializer(serializers.ModelSerializer):
     # 首页系列商标一对多
     brands = BrandSerializer(many=True)
     # 首页商品自定义methodfield获取相关类匹配
+
     goods = serializers.SerializerMethodField()
     # 获取二级类
+    # many=True 表示序列化的是一个QuerySet;其还可以序列化 model对象
     sub_cat = CategorySerializer2(many=True)
     # 获取广告商品(一个的)
     ad_goods = serializers.SerializerMethodField()
